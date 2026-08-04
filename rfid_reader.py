@@ -13,6 +13,8 @@
 import evdev
 from evdev import InputDevice, categorize, ecodes, list_devices
 
+from supabase_client import get_student_by_uid, register_student
+
 # แผนที่คีย์โค้ดตัวเลข (KEY_1 ... KEY_0) เป็นตัวอักษร
 KEYCODE_MAP = {
     "KEY_1": "1", "KEY_2": "2", "KEY_3": "3", "KEY_4": "4", "KEY_5": "5",
@@ -67,11 +69,31 @@ def read_card_uid(device):
 def on_card_scanned(uid):
     """
     Callback ที่จะถูกเรียกทุกครั้งที่แตะบัตรสำเร็จ
-    ตรงนี้คือจุดที่จะเชื่อมต่อกับ Supabase ในขั้นตอนถัดไป
+    - ถ้าเจอในฐานข้อมูลแล้ว: แสดงชื่อเล่นและแต้มสะสม
+    - ถ้ายังไม่เจอ: ให้กรอกข้อมูลเพื่อลงทะเบียนใหม่
     """
-    print(f"อ่านบัตรสำเร็จ! UID = {uid}")
-    # TODO: เรียกฟังก์ชันเช็ค/ลงทะเบียนกับ Supabase ตรงนี้ในบทเรียนถัดไป
-    # เช่น: check_or_register_student(uid)
+    print(f"\nอ่านบัตรสำเร็จ! UID = {uid}")
+
+    student = get_student_by_uid(uid)
+
+    if student:
+        print(f"ยินดีต้อนรับกลับ {student['nickname']}!")
+        print(f"แต้มสะสมปัจจุบัน: {student['points']} แต้ม")
+        return
+
+    print("ยังไม่เคยลงทะเบียนบัตรใบนี้ กรุณากรอกข้อมูลเพื่อลงทะเบียน\n")
+    student_code = input("รหัสนักเรียน: ").strip()
+    first_name = input("ชื่อ: ").strip()
+    last_name = input("นามสกุล: ").strip()
+    nickname = input("ชื่อเล่น: ").strip()
+
+    new_student = register_student(uid, student_code, first_name, last_name, nickname)
+
+    if new_student:
+        print(f"\nลงทะเบียนสำเร็จ! ยินดีต้อนรับ {new_student['nickname']}")
+        print(f"แต้มเริ่มต้น: {new_student['points']} แต้ม")
+    else:
+        print("\nเกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง")
 
 
 def main():
