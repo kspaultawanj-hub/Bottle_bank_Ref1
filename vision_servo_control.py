@@ -36,7 +36,7 @@ from tflite_runtime.interpreter import Interpreter
 MODEL_PATH = "model/model.tflite"      # path ไปยังไฟล์โมเดลที่ export จาก Teachable Machine
 LABELS_PATH = "model/labels.txt"       # path ไปยังไฟล์รายชื่อคลาส
 
-SERVO_GPIO_PIN = 17                    # ขา GPIO ที่ต่อสาย signal ของ servo (เปลี่ยนตามการต่อจริง)
+SERVO_GPIO_PIN = 14                    # ขา GPIO ที่ต่อสาย signal ของ servo (เปลี่ยนตามการต่อจริง)
 
 # ตำแหน่ง servo ตามไลบรารี gpiozero (ช่วงค่า -1.0 ถึง 1.0)
 # -1.0 = สุดซ้าย, 0.0 = กึ่งกลาง, 1.0 = สุดขวา
