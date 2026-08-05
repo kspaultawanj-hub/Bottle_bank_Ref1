@@ -16,7 +16,7 @@
 
 ติดตั้งก่อนใช้งาน:
     sudo apt install -y python3-picamera2
-    pip3 install --break-system-packages tflite-runtime numpy pillow gpiozero
+    pip3 install --break-system-packages ai-edge-litert numpy pillow gpiozero
 
 *** ต้องแก้ค่าคงที่ในส่วน CONFIG ด้านล่างให้ตรงกับอุปกรณ์จริงก่อนใช้งาน ***
 โดยเฉพาะ SERVO_GPIO_PIN, MODEL_PATH, LABELS_PATH และ REJECT_CLASS_NAMES
@@ -29,7 +29,14 @@ import numpy as np
 from gpiozero import Servo
 from PIL import Image
 from picamera2 import Picamera2
-from tflite_runtime.interpreter import Interpreter
+
+# tflite-runtime ไม่มีการอัปเดต wheel รองรับ Python เวอร์ชันใหม่ๆ แล้ว
+# Google เปลี่ยนมาใช้แพ็กเกจใหม่ชื่อ ai-edge-litert (LiteRT) แทน
+# ติดตั้งด้วย: pip3 install --break-system-packages ai-edge-litert
+try:
+    from ai_edge_litert.interpreter import Interpreter
+except ImportError:
+    from tflite_runtime.interpreter import Interpreter  # เผื่อรันบนเครื่องที่ยังใช้แพ็กเกจเก่า
 
 # ========================= CONFIG (แก้ตรงนี้ตามอุปกรณ์จริง) =========================
 
