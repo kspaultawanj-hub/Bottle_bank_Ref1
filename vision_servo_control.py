@@ -50,7 +50,7 @@ CONFIDENCE_THRESHOLD = 0.5             # ค่าความมั่นใจ
 
 # รายชื่อคลาสที่ถือว่า "ไม่ผ่าน" (ยังมีฝา/มีฉลากติดอยู่) -> สั่งหมุนขวา
 # ต้องสะกดให้ตรงกับชื่อคลาสใน labels.txt เป๊ะๆ แก้ตรงนี้ให้ตรงกับโมเดลจริงของคุณ
-REJECT_CLASS_NAMES = {"has_cap", "has_label", "has_cap_label"}
+REJECT_CLASS_NAMES = {"Got cap", "Got cap and label", "Got label"}
 
 DETECTION_COOLDOWN_SECONDS = 2.0       # เวลาหน่วงขั้นต่ำระหว่างการสั่ง servo แต่ละครั้ง
 
