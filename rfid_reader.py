@@ -13,7 +13,7 @@
 import evdev
 from evdev import InputDevice, categorize, ecodes, list_devices
 
-from supabase_client import get_student_by_uid, register_student
+from supabase_client import get_student_by_uid, register_student, update_points
 
 # แผนที่คีย์โค้ดตัวเลข (KEY_1 ... KEY_0) เป็นตัวอักษร
 KEYCODE_MAP = {
@@ -66,11 +66,44 @@ def read_card_uid(device):
                         buffer += KEYCODE_MAP[key]
 
 
+def simulate_bottle_session(student):
+    """
+    จำลองขั้นตอนรับขวด (ใช้แทนกล้อง+AI ไปก่อนชั่วคราว)
+    พิมพ์ OK  -> จำลองว่าใส่ขวดถูกต้อง 1 ใบ (+5 แต้ม)
+    พิมพ์ done -> จบรอบ กลับไปรอแตะบัตรใบถัดไป
+
+    หมายเหตุ: ทีหลังตอนต่อกล้องจริง แค่แทนที่จุดที่เช็ค command == "ok"
+    ด้วยผลลัพธ์จากโมเดล AI ตรวจจับขวด โครงสร้างที่เหลือใช้ต่อได้เลย
+    """
+    uid = student["rfid_uid"]
+    points = student["points"]
+
+    print(f"\n--- เริ่มรับขวดสำหรับ {student['nickname']} (แต้มปัจจุบัน: {points}) ---")
+    print("พิมพ์ OK แล้ว Enter เพื่อจำลองใส่ขวด 1 ใบ (+5 แต้ม)")
+    print("พิมพ์ done แล้ว Enter เพื่อจบรอบ\n")
+
+    while True:
+        command = input("> ").strip().lower()
+
+        if command == "ok":
+            updated = update_points(uid, 5)
+            if updated:
+                points = updated["points"]
+                print(f"รับขวดสำเร็จ! +5 แต้ม (แต้มรวมตอนนี้: {points})")
+            else:
+                print("เกิดข้อผิดพลาดในการบันทึกแต้ม กรุณาลองใหม่")
+        elif command == "done":
+            print(f"--- จบรอบ แต้มรวมของ {student['nickname']}: {points} แต้ม ---\n")
+            break
+        else:
+            print("คำสั่งไม่รู้จัก พิมพ์ OK เพื่อเพิ่มแต้ม หรือ done เพื่อจบรอบ")
+
+
 def on_card_scanned(uid):
     """
     Callback ที่จะถูกเรียกทุกครั้งที่แตะบัตรสำเร็จ
-    - ถ้าเจอในฐานข้อมูลแล้ว: แสดงชื่อเล่นและแต้มสะสม
-    - ถ้ายังไม่เจอ: ให้กรอกข้อมูลเพื่อลงทะเบียนใหม่
+    - ถ้าเจอในฐานข้อมูลแล้ว: แสดงชื่อเล่นและแต้มสะสม แล้วเข้าสู่โหมดรับขวด
+    - ถ้ายังไม่เจอ: ให้กรอกข้อมูลเพื่อลงทะเบียนใหม่ แล้วเข้าสู่โหมดรับขวด
     """
     print(f"\nอ่านบัตรสำเร็จ! UID = {uid}")
 
@@ -79,6 +112,7 @@ def on_card_scanned(uid):
     if student:
         print(f"ยินดีต้อนรับกลับ {student['nickname']}!")
         print(f"แต้มสะสมปัจจุบัน: {student['points']} แต้ม")
+        simulate_bottle_session(student)
         return
 
     print("ยังไม่เคยลงทะเบียนบัตรใบนี้ กรุณากรอกข้อมูลเพื่อลงทะเบียน\n")
@@ -92,6 +126,7 @@ def on_card_scanned(uid):
     if new_student:
         print(f"\nลงทะเบียนสำเร็จ! ยินดีต้อนรับ {new_student['nickname']}")
         print(f"แต้มเริ่มต้น: {new_student['points']} แต้ม")
+        simulate_bottle_session(new_student)
     else:
         print("\nเกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง")
 
