@@ -69,3 +69,27 @@ def register_student(uid: str, student_code: str, first_name: str, last_name: st
         .execute()
     )
     return response.data[0] if response.data else None
+
+
+def update_points(uid: str, delta: int):
+    """
+    ปรับแต้มของนักเรียน (บวกหรือลบ) ตาม RFID UID
+    delta เป็นบวก = เพิ่มแต้ม, เป็นลบ = ลดแต้ม (เช่นตอนแลกรางวัล)
+
+    return: dict ข้อมูลนักเรียนหลังอัปเดตแต้มแล้ว หรือ None ถ้าไม่เจอนักเรียน/เกิดข้อผิดพลาด
+    """
+    student = get_student_by_uid(uid)
+    if student is None:
+        return None
+
+    new_points = student["points"] + delta
+    if new_points < 0:
+        new_points = 0  # กันแต้มติดลบ
+
+    response = (
+        supabase.table("students")
+        .update({"points": new_points})
+        .eq("rfid_uid", uid)
+        .execute()
+    )
+    return response.data[0] if response.data else None
