@@ -25,15 +25,29 @@ KEYCODE_MAP = {
 
 def find_rfid_device():
     """
-    ค้นหาอุปกรณ์ RFID reader อัตโนมัติจากรายชื่ออุปกรณ์ input ทั้งหมด
-    เครื่องอ่าน RFID มักมีชื่อประมาณ 'HID Keyboard' หรือระบุยี่ห้อ/รุ่น
-    ถ้าหาไม่เจอ ให้รันฟังก์ชัน list_all_devices() เพื่อดูชื่อจริงแล้วแก้ keyword
+    ค้นหาเครื่องอ่าน RFID อัตโนมัติจากชื่ออุปกรณ์ input ทั้งหมด
+
+    ใช้คำค้นหาที่เจาะจงก่อน (rfid, sycreader, id&ic) เพื่อเลี่ยงการจับอุปกรณ์อื่น
+    ที่บังเอิญมีคำว่า "keyboard" หรือ "hid" ในชื่อ (เช่น จอสัมผัส หรือคีย์บอร์ดจำลองอื่นๆ)
+    ถ้าหาด้วยคำเจาะจงไม่เจอ ค่อย fallback ไปหาด้วยคำกว้างๆ เป็นทางเลือกสุดท้าย
+    ถ้าหาไม่เจอเลย ให้รันฟังก์ชัน list_all_devices() เพื่อดูชื่อจริงแล้วแก้ keyword
     """
     devices = [InputDevice(path) for path in list_devices()]
+
+    specific_keywords = ["rfid", "sycreader", "id&ic"]
     for device in devices:
         name_lower = device.name.lower()
-        if "keyboard" in name_lower or "rfid" in name_lower or "hid" in name_lower:
+        if any(keyword in name_lower for keyword in specific_keywords):
             return device
+
+    broad_keywords = ["keyboard", "hid"]
+    for device in devices:
+        name_lower = device.name.lower()
+        if any(keyword in name_lower for keyword in broad_keywords):
+            print(f"คำเตือน: ใช้อุปกรณ์จากการค้นหาแบบกว้าง ({device.name}) "
+                  f"อาจไม่ใช่เครื่องอ่าน RFID จริง")
+            return device
+
     return None
 
 
