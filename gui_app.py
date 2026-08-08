@@ -68,25 +68,43 @@ def rfid_listener_thread(uid_queue):
 
     เหตุผลที่แยก thread: read_loop() เป็นคำสั่งบล็อก (รอรับสัญญาณค้างไว้)
     ถ้ารันในเธรดเดียวกับ Tkinter mainloop จะทำให้หน้าจอค้างไม่ตอบสนอง
-    """
-    device = find_rfid_device()
-    if device is None:
-        print("ไม่พบเครื่องอ่าน RFID กรุณาเช็คการเชื่อมต่อ USB")
-        return
 
-    buffer = ""
-    for event in device.read_loop():
-        if event.type == ecodes.EV_KEY:
-            data = categorize(event)
-            if data.keystate == 1:  # keydown เท่านั้น
-                key = data.keycode
-                if key in KEYCODE_MAP:
-                    if KEYCODE_MAP[key] == "ENTER":
-                        if buffer:
-                            uid_queue.put(buffer)
-                            buffer = ""
-                    else:
-                        buffer += KEYCODE_MAP[key]
+    หมายเหตุ: ใส่ print(..., flush=True) และ try/except ครอบทั้งฟังก์ชัน
+    เพื่อ debug ปัญหา thread ทำงานเงียบๆ โดยไม่มี error โผล่ให้เห็น
+    """
+    print("[RFID] เริ่มค้นหาเครื่องอ่าน...", flush=True)
+
+    try:
+        device = find_rfid_device()
+
+        if device is None:
+            print("[RFID] ไม่พบเครื่องอ่าน RFID กรุณาเช็คการเชื่อมต่อ USB", flush=True)
+            return
+
+        print(f"[RFID] พบอุปกรณ์: {device.name} ({device.path})", flush=True)
+        print("[RFID] เริ่มรอรับสัญญาณจากเครื่องอ่าน...", flush=True)
+
+        buffer = ""
+        for event in device.read_loop():
+            if event.type == ecodes.EV_KEY:
+                data = categorize(event)
+                if data.keystate == 1:  # keydown เท่านั้น
+                    key = data.keycode
+                    print(f"[RFID] รับคีย์: {key}", flush=True)
+                    if key in KEYCODE_MAP:
+                        if KEYCODE_MAP[key] == "ENTER":
+                            if buffer:
+                                print(f"[RFID] UID ครบแล้ว: {buffer} -> ส่งเข้า queue", flush=True)
+                                uid_queue.put(buffer)
+                                buffer = ""
+                        else:
+                            buffer += KEYCODE_MAP[key]
+
+    except Exception:
+        # พิมพ์ traceback แบบเต็มออกมา เผื่อ thread ล้มเงียบๆ โดยไม่มีอะไรขึ้นเลย
+        import traceback
+        print("[RFID] เกิดข้อผิดพลาดใน thread:", flush=True)
+        traceback.print_exc()
 
 
 # ---------------------------------------- ส่วน GUI ----------------------------------------
