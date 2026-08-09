@@ -43,7 +43,7 @@ except ImportError:
 MODEL_PATH = "model/model.tflite"      # path ไปยังไฟล์โมเดลที่ export จาก Teachable Machine
 LABELS_PATH = "model/labels.txt"       # path ไปยังไฟล์รายชื่อคลาส
 
-SERVO_GPIO_PIN = 14                    # ขา GPIO ที่ต่อสาย signal ของ servo (เปลี่ยนตามการต่อจริง)
+SERVO_GPIO_PIN = 17                    # ขา GPIO ที่ต่อสาย signal ของ servo (เปลี่ยนตามการต่อจริง)
 
 # ตำแหน่ง servo ตามไลบรารี gpiozero (ช่วงค่า -1.0 ถึง 1.0)
 # -1.0 = สุดซ้าย, 0.0 = กึ่งกลาง, 1.0 = สุดขวา
@@ -57,7 +57,7 @@ CONFIDENCE_THRESHOLD = 0.5             # ค่าความมั่นใจ
 
 # รายชื่อคลาสที่ถือว่า "ไม่ผ่าน" (ยังมีฝา/มีฉลากติดอยู่) -> สั่งหมุนขวา
 # ต้องสะกดให้ตรงกับชื่อคลาสใน labels.txt เป๊ะๆ แก้ตรงนี้ให้ตรงกับโมเดลจริงของคุณ
-REJECT_CLASS_NAMES = {"Got cap", "Got cap and label", "Got label"}
+REJECT_CLASS_NAMES = {"has_cap", "has_label", "has_cap_label"}
 
 DETECTION_COOLDOWN_SECONDS = 2.0       # เวลาหน่วงขั้นต่ำระหว่างการสั่ง servo แต่ละครั้ง
 
@@ -109,7 +109,10 @@ def preprocess_frame(frame, input_details):
     input_shape = input_details[0]["shape"]  # เช่น [1, 224, 224, 3]
     target_height, target_width = input_shape[1], input_shape[2]
 
-    image = Image.fromarray(frame).resize((target_width, target_height))
+    # Picamera2 อาจส่งภาพมาเป็น 4 ช่องสี (RGBA/XRGB) ขึ้นอยู่กับการตั้งค่ากล้อง
+    # แต่โมเดลจาก Teachable Machine ต้องการภาพ 3 ช่องสี (RGB) เท่านั้น
+    # ต้องแปลงให้เป็น RGB เสมอ ไม่ว่ากล้องจะส่งมากี่ช่องสีก็ตาม กัน error "Dimension mismatch"
+    image = Image.fromarray(frame).convert("RGB").resize((target_width, target_height))
     input_data = np.expand_dims(np.array(image), axis=0)
 
     if input_details[0]["dtype"] == np.float32:
