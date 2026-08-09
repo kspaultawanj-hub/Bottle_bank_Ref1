@@ -93,3 +93,25 @@ def update_points(uid: str, delta: int):
         .execute()
     )
     return response.data[0] if response.data else None
+
+
+def log_redemption(student_id: str, rfid_uid: str, nickname: str, points_used: int):
+    """
+    บันทึกประวัติการแลกของรางวัลลงตาราง redemptions
+    ใช้ตรวจสอบย้อนหลังได้ว่านักเรียนคนไหนแลกแต้มไปวันไหน กี่แต้ม
+
+    return: dict ข้อมูล redemption ที่เพิ่งสร้าง หรือ None ถ้าเกิดข้อผิดพลาด
+    """
+    response = (
+        supabase.table("redemptions")
+        .insert(
+            {
+                "student_id": student_id,
+                "rfid_uid": rfid_uid,
+                "nickname": nickname,
+                "points_used": points_used,
+            }
+        )
+        .execute()
+    )
+    return response.data[0] if response.data else None
