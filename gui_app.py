@@ -30,7 +30,8 @@ from tkinter import font as tkfont
 import evdev
 from evdev import InputDevice, categorize, ecodes, list_devices
 
-from supabase_client import get_student_by_uid, register_student, update_points
+from supabase_client import get_student_by_uid, register_student, update_points, log_redemption
+from discord_notify import send_discord_notification
 
 # ========================= CONFIG (แก้ค่าตรงนี้ได้ตามต้องการ) =========================
 
@@ -302,6 +303,16 @@ class BottleBankApp:
 
         updated = update_points(self.current_uid, -VOUCHER_COST_POINTS)
         if updated:
+            log_redemption(
+                student_id=updated["id"],
+                rfid_uid=self.current_uid,
+                nickname=updated["nickname"],
+                points_used=VOUCHER_COST_POINTS,
+            )
+            send_discord_notification(
+                f"🎁 **{updated['nickname']}** แลกของรางวัลไป {VOUCHER_COST_POINTS} แต้ม "
+                f"(เหลือ {updated['points']} แต้ม)"
+            )
             self.current_student = updated
             self.points_label.config(text=f"แต้มสะสม: {updated['points']} แต้ม")
             self.update_redeem_button_state()
