@@ -55,9 +55,10 @@ SERVO_HOLD_SECONDS = 1.0               # เวลาที่ให้ servo �
 
 CONFIDENCE_THRESHOLD = 0.5             # ค่าความมั่นใจขั้นต่ำที่จะยอมรับผลตรวจจับ (0.0 - 1.0)
 
-# รายชื่อคลาสที่ถือว่า "ไม่ผ่าน" (ยังมีฝา/มีฉลากติดอยู่) -> สั่งหมุนขวา
+# รายชื่อคลาสที่ถือว่า "ไม่ผ่าน" (ยังมีฉลากติดอยู่) -> สั่งหมุนขวา
 # ต้องสะกดให้ตรงกับชื่อคลาสใน labels.txt เป๊ะๆ (เช็คด้วย: cat model/labels.txt)
-REJECT_CLASS_NAMES = {"Got cap", "Got label", "Got cap and label"}
+# หมายเหตุ: ตัดการตรวจฝาออกจาก scope แล้ว เช็คเฉพาะฉลากเท่านั้น
+REJECT_CLASS_NAMES = {"has_label"}
 
 DETECTION_COOLDOWN_SECONDS = 2.0       # เวลาหน่วงขั้นต่ำระหว่างการสั่ง servo แต่ละครั้ง
 
