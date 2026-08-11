@@ -47,7 +47,7 @@ SERVO_GPIO_PIN = 17                    # ขา GPIO ที่ต่อสาย
 
 # ตำแหน่ง servo ตามไลบรารี gpiozero (ช่วงค่า -1.0 ถึง 1.0)
 # -1.0 = สุดซ้าย, 0.0 = กึ่งกลาง, 1.0 = สุดขวา
-SERVO_RIGHT_POSITION = -1.0
+SERVO_RIGHT_POSITION = -5.0
 SERVO_LEFT_POSITION = 1.0
 SERVO_CENTER_POSITION = 0.0
 
@@ -60,7 +60,7 @@ CONFIDENCE_THRESHOLD = 0.5             # ค่าความมั่นใจ
 # หมายเหตุ: ตัดการตรวจฝาออกจาก scope แล้ว เช็คเฉพาะฉลากเท่านั้น
 REJECT_CLASS_NAMES = {"has_label"}
 
-DETECTION_COOLDOWN_SECONDS = 2.0       # เวลาหน่วงขั้นต่ำระหว่างการสั่ง servo แต่ละครั้ง
+DETECTION_COOLDOWN_SECONDS = 10.0       # เวลาหน่วงขั้นต่ำระหว่างการสั่ง servo แต่ละครั้ง
 
 FRAME_DELAY_SECONDS = 0.3              # หน่วงเวลาระหว่างเฟรม ลดภาระ CPU
 
