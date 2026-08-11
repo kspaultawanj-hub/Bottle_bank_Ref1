@@ -43,7 +43,7 @@ from discord_notify import send_discord_notification
 # ============================= CONFIG (แก้ค่าตรงนี้ได้ตามต้องการ) =============================
 
 # --- แต้มและของรางวัล ---
-POINTS_PER_BOTTLE = 1                  # แต้มที่ได้ต่อขวด 1 ใบที่ผ่านการตรวจสอบ
+POINTS_PER_BOTTLE = 5                  # แต้มที่ได้ต่อขวด 1 ใบที่ผ่านการตรวจสอบ
 VOUCHER_TIERS = [50, 100, 150, 200]    # ตัวเลือกแต้มที่ใช้แลกของรางวัลได้
 
 # --- กล้อง + โมเดล AI ---
@@ -52,13 +52,13 @@ LABELS_PATH = "model/labels.txt"
 CAMERA_RESOLUTION = (640, 480)
 CONFIDENCE_THRESHOLD = 0.5             # ต่ำกว่านี้ถือว่าไม่มั่นใจ ไม่ให้แต้ม ไม่สั่ง servo
 REJECT_CLASS_NAMES = {"has_label"}     # คลาสที่ถือว่า "ไม่ผ่าน" (ยังมีฉลากอยู่) ต้องตรงกับ labels.txt เป๊ะๆ
-DETECTION_COOLDOWN_SECONDS = 4.0       # เวลาหน่วงขั้นต่ำระหว่างการตัดสินใจแต่ละครั้ง
+DETECTION_COOLDOWN_SECONDS = 2.0       # เวลาหน่วงขั้นต่ำระหว่างการตัดสินใจแต่ละครั้ง
 FRAME_DELAY_SECONDS = 0.3              # หน่วงเวลาระหว่างเฟรม ลดภาระ CPU
 
 # --- Servo Motor ---
 SERVO_GPIO_PIN = 17
-SERVO_RIGHT_POSITION = -1.0             # ไม่ผ่าน (ยังมีฉลาก)
-SERVO_LEFT_POSITION = 1.0             # ผ่าน (ไม่มีฉลาก)
+SERVO_RIGHT_POSITION = -1.0            # ไม่ผ่าน (ยังมีฉลาก)
+SERVO_LEFT_POSITION = 1.0              # ผ่าน (ไม่มีฉลาก)
 SERVO_CENTER_POSITION = 0.0
 SERVO_HOLD_SECONDS = 1.0
 
